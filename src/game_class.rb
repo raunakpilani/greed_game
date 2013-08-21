@@ -8,21 +8,29 @@ class Game
 	def initialize(players = 2, goal = 3000)
 		@goal = goal
 		@game_over = false
-		players = players.to_i unless players.is_a? Fixnum
+		@player_standings = {}
+		@player_list = []
+		players = players.to_i
+		init_player_count(players)
+		init_list_n_standings
+		@next_player = 0
+		@last_round_first_player = -1
+	end
+
+	def init_list_n_standings
+		@player_count.times do |player_id|
+			@player_list << Player.new(player_id) 
+			@player_standings[player_id] = 0
+		end
+	end
+
+	def init_player_count(players)
 		case 
 		when players < 2 then @player_count = 2
 		when (2..8).member?(players) then @player_count = players
 		when players > 8 then @player_count = 8
 		else @player_count = 2
 		end 
-		@player_standings = {}
-		@player_list = []
-		@player_count.times do |player_id|
-			@player_list << Player.new(player_id) 
-			@player_standings[player_id] = 0
-		end
-		@next_player = 0
-		@last_round_first_player = -1
 	end
 
 	def change_player
