@@ -1,49 +1,39 @@
 require_relative './dice_set_class'
 class Player
 	def initialize (player_id)
-		@player_id = player_id
+		@player_id = player_id.to_i
 		@allowed_to_score = false
 		@dice = DiceSet.new
 	end
 
+	def roll_and_return(dice_count)
+		@dice.roll(dice_count)
+		@dice.values
+	end
+
 	def play_turn
 		score = 0
-		@dice.roll(5)
-		new_roll = @dice.values
-		new_score,scoring = score(new_roll)
-		if new_score < 300 and !@allowed_to_score
-			puts "Not allowed to score yet!"
-			display_roll_scores(new_roll,new_score,score)
-			return 0
-		elsif @allowed_to_score
-			score = new_score
-			display_roll_scores(new_roll,new_score,score)
-		elsif new_score >= 300
-			score = new_score
-			display_roll_scores(new_roll,new_score,score)
-			puts "You can now score!!"
-			@allowed_to_score = true
-		end
-		continue_to_roll = get_user_input("Score: #{score} Roll again? ") == "y" ? true : false
+		new_roll = roll_and_return(5)
+		new_score,scoring = score_and_scoring(new_roll)
+
+		@allowed_to_score = @allowed_to_score || (new_score >= 300)
+		score = (@allowed_to_score && new_score > 0) ? new_score : 0
+		display_roll_scores(new_roll,new_score,score)
+		puts "Allowed to score: #{@allowed_to_score}"
+
+		return score if score == 0
 		
-		while continue_to_roll
+		while new_score > 0 && continue_to_roll?
 			dice_count = (scoring == new_roll.length) ? new_roll.length : (new_roll.length - scoring)
-			puts "Dice count #{dice_count}"
-			@dice.roll(dice_count)
-			new_roll = @dice.values
-			new_score,scoring = score(new_roll)
-			if new_score == 0
-				display_roll_scores(new_roll,new_score,0)
-				return 0
-			end
-			score += new_score
+			new_roll = roll_and_return(dice_count)
+			new_score,scoring = score_and_scoring(new_roll)
+			score,roll_again = new_score == 0 ? [new_score,false] : [(score + new_score),true]
 			display_roll_scores(new_roll,new_score,score)
-			continue_to_roll = get_user_input("Score: #{score} Roll again? ") == "y" ? true : false
 		end
 		score
 	end
 
-	def score(dice)
+	def score_and_scoring(dice)
 		score = 0
 		scoring = 0
 		values = [1,2,3,4,5,6]
@@ -54,9 +44,9 @@ class Player
 		dice.each { |value| counts[value] += 1 }
 		counts.each do |value,count|
 			if count > 0
-				score += (count / 3) * 1000 + (count % 3 ) * 100 if value == 1
-				score += (count / 3) * 500 + (count % 3 ) * 50 if value == 5
-				score += (count / 3) * value * 100 if value != 1 and value != 5
+				value == 1 && score += (count / 3) * 1000 + (count % 3 ) * 100
+				value == 5 && score += (count / 3) * 500 + (count % 3 ) * 50
+				(not [1,5].include? value) && score += (count / 3) * value * 100
 			end
 			scoring += count if value == 1 || value == 5
 			scoring += (count / 3) * 3 if value != 1 and value != 5
@@ -64,13 +54,13 @@ class Player
 		[score,scoring]
 	end
 
-	def get_user_input(message)
-		print message + "> "
-		return gets.chomp
+	def continue_to_roll?
+		print "Roll again[y/n]? " 
+		gets.chomp.downcase == 'y' ? true : false
 	end
 
 	def display_roll_scores(roll,roll_score,score)
-		puts "Your Roll: #{roll} and its score: #{roll_score}\nTurn Score:#{score}"
+		puts "\nYour Roll: #{roll} and its score: #{roll_score}... Turn Score:#{score}"
 	end
 
 end
