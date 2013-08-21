@@ -5,33 +5,33 @@ describe Game do
 	before :each do
 		@current_game = Game.new
 	end
+
 	describe "#new" do
 		it "returns a game instance" do
-			@new_game = Game.new
-			@new_game.should be_an_instance_of Game
+			@current_game.should be_an_instance_of Game
 		end
 		it "takes at most two integers as input" do
 			Game.new.should be_an_instance_of Game
 			Game.new(2,5000).should be_an_instance_of Game
 			lambda { Game.new(2,11000,5) }.should raise_exception ArgumentError
 		end
-
 		it "keeps player_count between 2 and 8 inclusive" do
 			(2..8).should include(@current_game.player_count)
 		end
-
 		it "populates player_list with player_count number of Player objects" do
-			list = @current_game.instance_variable_get(:player_list)
+			list = @current_game.instance_variable_get(:@player_list)
 			list.length.should be == @current_game.player_count
 			list.each { |element| element.should be_an_instance_of Player }
 		end
+	end
 
-		it "populates player_standings with player_count number of id => score pairs" do
+	describe "#player_standings" do
+		it "returns the player scores in a Hash of player_count entries as id => score" do
 			hash = @current_game.player_standings
 			hash.size.should be == @current_game.player_count
 			hash.each do |id,score| 
 				id.should be_an_instance_of Fixnum 
-				(2..@current_game.player_count).should include(id)
+				(0...@current_game.player_count).should include(id)
 				score.should be_an_instance_of Fixnum
 				score.should be == 0
 			end
@@ -56,9 +56,11 @@ describe Game do
 
 	describe "#next_turn" do
 		it "calls the next players play_turn method and changes to new player" do
-			old_player = @current_game.next_player
+			old_player = @current_game.instance_variable_get(:@next_player)
 			result = @current_game.next_turn
-			
+
+			old_player.should_not be @current_game.instance_variable_get(:@next_player)
+			result.should be_an_instance_of Hash
 		end
 	end
 end
