@@ -26,6 +26,7 @@ describe Player do
 			@new_player.play_turn
 		end
 	end
+
 	describe "#roll_and_return" do
 		it "calls the roll instance of the dice_set object and returns the roll values" do
 			DiceSet.any_instance.should_receive(:roll).with(5).and_return(nil)
@@ -33,6 +34,7 @@ describe Player do
 			values.should be_an_instance_of Array
 		end
 	end
+
 	describe "#score_and_scoring" do
 		it "scores a roll and lists the number of dice that were scoring" do
 			result = @new_player.score_and_scoring([1,2,3,1,5])
@@ -43,6 +45,7 @@ describe Player do
 			scoring.should be == 3
 		end
 	end
+
 	describe "#continue_to_roll?" do
 		it "gets user input and returns a true for 'y' and false otherwise" do
 			Player.any_instance.should_receive(:gets).with(no_args()).and_return('y')
@@ -50,6 +53,7 @@ describe Player do
 			result.should be 
 		end
 	end
+
 	describe "#display_roll_scores" do
 		it "takes exactly 3 arguments" do
 			lambda { @new_player.display_roll_scores(12,45) }.should raise_exception ArgumentError 
