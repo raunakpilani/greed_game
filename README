@@ -1,0 +1,11 @@
+Very Spare README to be expanded later:
+
+3 Class files in src/
+game_class.rb - responsible for initializing the game, changing player turns, keeping track of scores and ensuring game ends correctly... without fights!
+player_class.rb - responsible for playing a turn and scoring it when asked to do so
+dice_set_class.rb - responsible for rolling the dice and ensuring rolls don't immediately repeat
+
+1 gameplayer file
+greed_game_play.rb - nothing logicky here; simply calls the game class and calls new turns until the game is over
+
+4 Spec files in test/
